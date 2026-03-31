@@ -185,11 +185,11 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <AudioProvider>
-        <Router>
+      <Router>
+        <AudioProvider>
           <AppRoutes />
-        </Router>
-      </AudioProvider>
+        </AudioProvider>
+      </Router>
     </AuthProvider>
   );
 }
