@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AudioProvider, AudioContext } from './context/AudioContext';
 import Login from './views/Login';
 import Dashboard from './views/Dashboard';
 import EmojiMemory from './games/EmojiMemory';
@@ -30,6 +31,7 @@ const ProtectedRoute = ({ children }) => {
 
 function AppRoutes() {
   const { user } = useContext(AuthContext);
+  const { soundEnabled, toggleSound } = useContext(AudioContext);
   const location = useLocation();
   const isGame = location.pathname.startsWith('/game/');
 
@@ -158,6 +160,24 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
       </Routes>
+      {user && (
+        <button 
+          className="btn-primary" 
+          onClick={toggleSound} 
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 9999,
+            borderRadius: '50px',
+            padding: '10px 20px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+            background: soundEnabled ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)'
+          }}
+        >
+          {soundEnabled ? '🔊 BGM On' : '🔇 BGM Off'}
+        </button>
+      )}
     </div>
   );
 }
@@ -165,9 +185,11 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <AudioProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AudioProvider>
     </AuthProvider>
   );
 }

@@ -7,9 +7,7 @@ const Dashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const [stats, setStats] = useState({ streak: 0, highScores: [] });
   const [leaderboard, setLeaderboard] = useState([]);
-  const [soundEnabled, setSoundEnabled] = useState(false);
   const [activeCategory, setActiveCategory] = useState('technical'); // technical | fun | leaderboard
-  const audioRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,25 +51,7 @@ const Dashboard = () => {
       }
     };
     fetchDashboard();
-    
-    // Ambient Focus Music
-    audioRef.current = new Audio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg');
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0.2;
-    
-    return () => {
-      if (audioRef.current) audioRef.current.pause();
-    };
   }, []);
-
-  const toggleSound = () => {
-    if (soundEnabled) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(e => console.log('Audio play failed', e));
-    }
-    setSoundEnabled(!soundEnabled);
-  };
 
   const getHighScore = (gameName) => {
     const scoreObj = stats.highScores.find(s => s.game_name === gameName);
@@ -87,11 +67,7 @@ const Dashboard = () => {
             🔥 Activity Streak: <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>{stats.streak} Days</span>
           </p>
         </div>
-        
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn-primary" onClick={toggleSound} style={{ background: soundEnabled ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)' }}>
-            {soundEnabled ? '🔊 Focus Audio On' : '🔇 Focus Audio Off'}
-          </button>
           <button className="btn-primary" onClick={logout} style={{ background: 'var(--danger-color)' }}>
             Logout
           </button>
