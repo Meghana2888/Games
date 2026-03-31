@@ -1,33 +1,54 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const mongoose = require('mongoose');
 
-const dbPath = path.resolve(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error connecting to SQLite database:', err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
+// Mongoose connection to MongoDB Atlas
+const MONGODB_URI = 'mongodb+srv://maggi:maggi@cluster0.nxasyps.mongodb.net/Games?appName=Cluster0';
+
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB Atlas.'))
+  .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
+
+// User Schema
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  streak: {
+    type: Number,
+    default: 0
+  },
+  last_login: {
+    type: Date
   }
 });
 
-// Initialize Schema
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    streak INTEGER DEFAULT 0,
-    last_login DATETIME
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS scores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    game_name TEXT NOT NULL,
-    score INTEGER NOT NULL,
-    played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
+// Score Schema
+const scoreSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  game_name: {
+    type: String,
+    required: true
+  },
+  score: {
+    type: Number,
+    required: true
+  },
+  played_at: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = db;
+const User = mongoose.model('User', userSchema);
+const Score = mongoose.model('Score', scoreSchema);
+
+module.exports = { User, Score, mongoose };

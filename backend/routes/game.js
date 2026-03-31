@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const { User, Score, mongoose } = require('../database');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'super-secret-key-for-puzzle-platform'; // Replace with env variable in prod
@@ -19,49 +19,92 @@ const auth = (req, res, next) => {
 };
 
 // GET /api/game/dashboard: Get user streak and high scores
-router.get('/dashboard', auth, (req, res) => {
-  const userId = req.user.id;
+router.get('/dashboard', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-  db.get(`SELECT streak FROM users WHERE id = ?`, [userId], (err, user) => {
-    if (err || !user) return res.status(500).json({ error: 'Error fetching user' });
+    const user = await User.findById(userId);
+    if (!user) return res.status(500).json({ error: 'Error fetching user' });
 
-    db.all(`SELECT game_name, MAX(score) as max_score FROM scores WHERE user_id = ? GROUP BY game_name`, [userId], (err, scores) => {
-      if (err) return res.status(500).json({ error: 'Error fetching scores' });
-      res.json({ streak: user.streak, highScores: scores });
-    });
-  });
+    const scores = await Score.aggregate([
+      { $match: { user_id: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: '$game_name', max_score: { $max: '$score' } } },
+      { $project: { _id: 0, game_name: '$_id', max_score: 1 } }
+    ]);
+
+    res.json({ streak: user.streak, highScores: scores });
+  } catch (error) {
+    console.error('Error in /api/game/dashboard:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // GET /api/game/leaderboard: Get the global #1 high score across all users for each game
-router.get('/leaderboard', auth, (req, res) => {
-  const query = `
-    SELECT game_name, username, max_score 
-    FROM (
-      SELECT s.game_name, u.username, s.score as max_score,
-             ROW_NUMBER() OVER(PARTITION BY s.game_name ORDER BY s.score DESC) as rn
-      FROM scores s
-      JOIN users u ON s.user_id = u.id
-    ) 
-    WHERE rn = 1
-    ORDER BY game_name;
-  `;
-  db.all(query, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: 'Database error fetching leaderboard' });
-    res.json(rows);
-  });
+router.get('/leaderboard', auth, async (req, res) => {
+  try {
+    const leaderboard = await Score.aggregate([
+      // Sort by score descending to get highest first
+      { $sort: { score: -1 } },
+      // Group by game_name to find max score per game
+      { 
+        $group: {
+          _id: '$game_name',
+          max_score: { $first: '$score' },
+          user_id: { $first: '$user_id' }
+        }
+      },
+      // Join with users collection
+      { 
+        $lookup: {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      // Unwind user array
+      { $unwind: '$user' },
+      // Project final structure expected by frontend
+      { 
+        $project: {
+          _id: 0,
+          game_name: '$_id',
+          max_score: 1,
+          username: '$user.username'
+        }
+      },
+      // Order by game_name alphabetically
+      { $sort: { game_name: 1 } }
+    ]);
+
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Error in /api/game/leaderboard:', error);
+    res.status(500).json({ error: 'Database error fetching leaderboard' });
+  }
 });
 
 // POST /api/game/score: Submit a new score after game is finished
-router.post('/score', auth, (req, res) => {
-  const userId = req.user.id;
-  const { game_name, score } = req.body;
+router.post('/score', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { game_name, score } = req.body;
 
-  if (!game_name || score === undefined) return res.status(400).json({ error: 'Missing game parameters' });
+    if (!game_name || score === undefined) return res.status(400).json({ error: 'Missing game parameters' });
 
-  db.run(`INSERT INTO scores (user_id, game_name, score) VALUES (?, ?, ?)`, [userId, game_name, score], function (err) {
-    if (err) return res.status(500).json({ error: 'Database error while saving score' });
+    const newScore = new Score({
+      user_id: userId,
+      game_name,
+      score
+    });
+    
+    await newScore.save();
+
     res.status(201).json({ message: 'Score saved!' });
-  });
+  } catch (error) {
+    console.error('Error in /api/game/score:', error);
+    res.status(500).json({ error: 'Database error while saving score' });
+  }
 });
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const { User } = require('../database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -24,18 +24,16 @@ router.post('/register', async (req, res) => {
   if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
 
   try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+    const newUser = new User({ username, password: hashedPassword });
+    await newUser.save();
     
-    db.run(query, [username, hashedPassword], function (err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Username already taken' });
-        }
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.status(201).json({ message: 'User registered successfully!' });
-    });
+    res.status(201).json({ message: 'User registered successfully!' });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -45,8 +43,8 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  db.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
-    if (err) return res.status(500).json({ error: 'Database error' });
+  try {
+    const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -54,15 +52,18 @@ router.post('/login', async (req, res) => {
 
     // Update Streak
     const newStreak = calculateStreak(user.last_login, user.streak);
-    const now = new Date().toISOString();
+    const now = new Date();
     
-    db.run(`UPDATE users SET streak = ?, last_login = ? WHERE id = ?`, [newStreak, now, user.id], (err) => {
-      if (err) console.error('Error updating streak:', err);
-    });
+    user.streak = newStreak;
+    user.last_login = now;
+    await user.save();
 
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, user: { id: user.id, username: user.username, streak: newStreak } });
-  });
+    const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, user: { id: user._id, username: user.username, streak: newStreak } });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
