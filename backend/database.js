@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Mongoose connection to MongoDB Atlas
-const MONGODB_URI = 'mongodb+srv://maggi:maggi@cluster0.nxasyps.mongodb.net/Games?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://maggi:maggi@cluster0.nxasyps.mongodb.net/Games?appName=Cluster0';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB Atlas.'))
