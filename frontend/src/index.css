@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
 :root {
-  --bg-gradient: linear-gradient(135deg, #09090b 0%, #1e1b4b 100%);
+  --bg-gradient: linear-gradient(-45deg, #09090b, #1e1b4b, #2e1065, #0f172a, #312e81);
   --surface-color: rgba(255, 255, 255, 0.05);
   --surface-border: rgba(255, 255, 255, 0.1);
   --text-primary: #f8fafc;
@@ -25,10 +25,39 @@
 body {
   font-family: var(--font-main);
   background: var(--bg-gradient);
+  background-size: 400% 400%;
+  animation: premiumBackground 18s ease infinite;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Subtle tech-grid overlay for the "puzzle" feeling */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  z-index: -1;
+  pointer-events: none;
+  animation: subtleGridDrift 40s linear infinite;
+}
+
+@keyframes premiumBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes subtleGridDrift {
+  from { background-position: 0px 0px; }
+  to { background-position: 50px 50px; }
 }
 
 /* Glassmorphism Utilities */
