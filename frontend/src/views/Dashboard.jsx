@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { AudioContext } from '../context/AudioContext';
 import API from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,7 +9,13 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ streak: 0, highScores: [] });
   const [leaderboard, setLeaderboard] = useState([]);
   const [activeCategory, setActiveCategory] = useState('technical'); // technical | fun | leaderboard
+  const { playSFX } = useContext(AudioContext);
   const navigate = useNavigate();
+
+  const handleGameSelect = (path) => {
+    if (playSFX) playSFX();
+    navigate(path);
+  };
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -132,7 +139,7 @@ const Dashboard = () => {
             </div>
 
             {/* Game 4 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/circuit-logic')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/circuit-logic')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Circuit Logic Puzzle</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Repair offline hardware components. Cycle through Boolean Logic Gates to route electrical signals properly.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -142,7 +149,7 @@ const Dashboard = () => {
             </div>
 
             {/* Game 5 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/placement-run')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/placement-run')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Placement Run</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>An endless survival aptitude test. Answer Logical Reasoning, Number Series, and Coding MCQs to see how far you can get!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -152,7 +159,7 @@ const Dashboard = () => {
             </div>
 
             {/* Game 6 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/time-complexity-assassin')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/time-complexity-assassin')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Time Complexity Assassin</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Protect the server! Identify incredibly slow algorithms, select their optimal replacements, and type the exact Time Complexity to execute them before the system CPU reaches 100%.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -162,7 +169,7 @@ const Dashboard = () => {
             </div>
 
             {/* Game 7 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/database-normalizer')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/database-normalizer')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Database Normalizer</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Act as the Lead Database Architect. Restructure messy, unnormalized "universal tables" into strict 1NF, 2NF, 3NF, and BCNF architectures by clicking columns and executing table splits!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -171,7 +178,7 @@ const Dashboard = () => {
               </div>
             </div>
             {/* Game 8 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/network-rescue')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/network-rescue')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Network Rescue</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Fix a broken network in a college lab. Connect routers, find shortest paths via Dijkstra, match IPs, solve subnetting, and manually route packets!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -181,7 +188,7 @@ const Dashboard = () => {
             </div>
 
             {/* Game 9 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => navigate('/game/ai-lab-simulator')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s' }} onClick={() => handleGameSelect('/game/ai-lab-simulator')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>AI Lab Simulator</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Act as a Data Science student. Train models with limited compute, diagnose overfitting limits, and verify algorithmic theory to pass your semester!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -195,7 +202,7 @@ const Dashboard = () => {
         {activeCategory === 'fun' && (
           <>
             {/* Fun Game 1 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/emoji-memory')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/emoji-memory')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Emoji Memory Match</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Challenge your short term memory with this classic fast-paced tile flipping game.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -205,7 +212,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 2 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/speed-typist')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/speed-typist')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Speed Typist Race</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Beat the clock! Rapid-fire typing test to measure your finger accuracy and raw WPM.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -215,7 +222,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 3 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/angry-chicken')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/angry-chicken')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Angry Chicken</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Cross the streets—but SLAP the cars out of your way instead of dodging them! A violent endless-runner arcade spin-off.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -225,7 +232,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 4 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/color-mixing')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/color-mixing')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Color Mixing</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Combine purely primary hex-colors dynamically on the canvas to match complex targets within strict move limits.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -235,7 +242,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 5 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/wrong-answer')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/wrong-answer')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Wrong Answer Only</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Tricky inverted logic quiz. You lose if you click the correct answer! Fight your instincts within a shrinking 5-second panic window.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -245,7 +252,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 6 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/time-echo')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/time-echo')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Time Echo Puzzle</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Manipulate a spacetime clone of your past loop to execute dual concurrent puzzle logic on a synchronized turn-based grid.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -255,7 +262,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 7 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/escape-room')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/escape-room')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Escape the Room</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Trapped in the Computer Science building at 2:00 AM! Solve multi-staged spatial puzzles to break out in under 5 minutes.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -265,7 +272,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 8 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/pattern-master')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/pattern-master')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Pattern Master</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Push your short-term spatial memory to the limit. Features a brutal 'Chimp Test' numerical spatial grid mode.</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -275,7 +282,7 @@ const Dashboard = () => {
             </div>
 
             {/* Fun Game 9 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/visual-puzzle')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/visual-puzzle')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Lens Inspector</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Uncover 5 occult runes hidden in plain sight. Activate "Fake AR" mode to inject targets onto your live webcam feed natively!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -284,7 +291,7 @@ const Dashboard = () => {
               </div>
             </div>
             {/* Fun Game 10 */}
-            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => navigate('/game/custom-puzzle')}>
+            <div className="glass-panel game-card" style={{ padding: '2rem', cursor: 'pointer', transition: 'transform 0.2s', borderColor: 'var(--success-color)' }} onClick={() => handleGameSelect('/game/custom-puzzle')}>
               <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Custom Image Puzzle</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Upload any image and reconstruct it in a drag-and-drop grid. Challenge your visual memory against the clock!</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
